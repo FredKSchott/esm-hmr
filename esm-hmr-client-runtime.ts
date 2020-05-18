@@ -90,10 +90,8 @@ source.onmessage = async (e) => {
     return;
   }
   debug('message: update', data);
-
-  const id = new URL(data.url).pathname;
-  debug(id, Object.keys(REGISTERED_MODULES));
-  applyUpdate(id)
+  debug(data.url, Object.keys(REGISTERED_MODULES));
+  applyUpdate(data.url)
     .then((ok) => {
       if (!ok) {
         reload();
