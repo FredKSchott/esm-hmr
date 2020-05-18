@@ -1,6 +1,6 @@
 # ESM Hot Module Replacement (ESM-HMR) Spec
 
-*Author: Fred K. Schott*  
+*Author: Fred K. Schott (co-authors welcome!)*  
 *Status: Under Development*
 
 Hot Module Replacement (HMR) lets your website live-update during development without triggering a full browser reload or losing the current web application state. This can considerably speed up your iteration speed during development, saving you valuable time.
@@ -36,7 +36,13 @@ if (import.meta.hot) {
   // - Receive any module updates into the accept callback.
   // - Update the main module acordingly.
   import.meta.hot.accept(({module}) => {
-    foo = module.foo;
+    try {
+      foo = module.foo;
+    } catch (err) {
+      // Optional: If an error occurs during update, invalidate the module.
+      // This will naively trigger a full page reload.
+      import.meta.hot.invalidate();
+    }
   });
   // Optional: Perform any cleanup when a module is replaced.
   import.meta.hot.dispose(() => { /* ... */ });
