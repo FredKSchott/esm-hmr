@@ -46,4 +46,16 @@ if (import.meta.hot) {
 
 ### Spec Details
 
-Note: We are still fleshing this spec out. Our first goal is to document Snowpack's current browser-native HMR implementation for a first-round of feedback. Our second goal is to expand this spec to support Preact's Prefresh, React's Fast Reload, and more framework-specific HMR implementations. 
+Note: We are still fleshing this spec out, and this section is still under development. 
+
+Our first goal is to document Snowpack's current browser-native HMR implementation for a first-round of feedback. Our second goal is to expand this spec to support Preact's Prefresh, React's Fast Reload, and more framework-specific HMR implementations. 
+
+
+
+## Prior Art
+
+This spec wouldn't exist without the work of the following projects:
+
+- @rixo's [Rollup HMR Plugin](https://github.com/rixo/rollup-plugin-hot)
+- [Webpack HMR](https://webpack.js.org/concepts/hot-module-replacement/)
+- [Parcel HMR](https://parceljs.org/hmr.html)
