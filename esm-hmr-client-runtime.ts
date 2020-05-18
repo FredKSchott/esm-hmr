@@ -4,19 +4,19 @@
  * A client-side implementation of the ESM-HMR spec, for reference.
  */
 
-function debug(...args) {
+function debug(...args: any[]) {
   console.log('[ESM-HMR]', ...args);
 }
 function reload() {
   location.reload(true);
 }
 
-const REGISTERED_MODULES = {};
+const REGISTERED_MODULES: {[key: string]: HotModuleState} = {};
 
 class HotModuleState {
   id: string;
   isLocked: boolean = false;
-  acceptCallback?: true | (({module: any}) => void);
+  acceptCallback?: true | ((args: {module: any}) => void);
   disposeCallbacks: (() => void)[] = [];
 
   constructor(id: string) {
@@ -31,7 +31,7 @@ class HotModuleState {
     this.disposeCallbacks.push(callback);
   }
 
-  accept(callback: true | (({module}) => void) = true): void {
+  accept(callback: true | ((args: {module: any}) => void) = true): void {
     if (!this.isLocked) {
       this.acceptCallback = callback;
     }
@@ -42,7 +42,7 @@ class HotModuleState {
   }
 }
 
-export function createHotContext(fullUrl) {
+export function createHotContext(fullUrl: string) {
   const id = new URL(fullUrl).pathname;
   const existing = REGISTERED_MODULES[id];
   if (existing) {
@@ -54,7 +54,7 @@ export function createHotContext(fullUrl) {
   return state;
 }
 
-async function applyUpdate(id) {
+async function applyUpdate(id: string) {
   const state = REGISTERED_MODULES[id];
   if (!state || !id.endsWith('.js')) {
     return false;
