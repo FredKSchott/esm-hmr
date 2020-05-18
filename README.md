@@ -33,8 +33,8 @@ export let foo = 1;
 // HMR Logic:
 if (import.meta.hot) {
   // Required: Mark this module as HMR-ready.
-  // 1. Receive any module updates into the accept callback.
-  // 2. Update the main module acordingly.
+  // - Receive any module updates into the accept callback.
+  // - Update the main module acordingly.
   import.meta.hot.accept(({module}) => {
     foo = module.foo;
   });
