@@ -7,6 +7,9 @@
 function debug(...args) {
   console.log('[ESM-HMR]', ...args);
 }
+function reload() {
+  location.reload(true);
+}
 
 const REGISTERED_MODULES = {};
 
@@ -33,6 +36,9 @@ class HotModuleState {
       this.acceptCallback = callback;
     }
     this.isLocked = true;
+  }
+  invalidate(): void {
+    reload();
   }
 }
 
@@ -71,7 +77,6 @@ async function applyUpdate(id) {
 }
 
 const source = new EventSource('/livereload');
-const reload = () => location.reload(true);
 source.onerror = () => (source.onopen = reload);
 source.onmessage = async (e) => {
   const data = JSON.parse(e.data);
