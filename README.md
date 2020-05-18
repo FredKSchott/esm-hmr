@@ -9,11 +9,11 @@ In the past, web bundlers like Webpack, Rollup, and Parcel have all implemented
 
 **ESM-HMR** is a standard interface for Hot Module Replacement. The rise of bundle-free development creates the opportunity for a common, standard HMR API based on the browser's native module system. ESM-HMR leverages the browser's native module loading during development to create an API for hot module replacement that can work in any dev environment that uses ESM in the browser.
 
-### Who's Using ESM-HMR?
+## Who's Using ESM-HMR?
 
 - [Snowpack](http://snowpack.dev/)
 
-### What's in This Repo?
+## What's in This Repo?
 
 1. A spec outlining a standard ESM-based Hot Module Replacement (HMR) API that can be used by any bundle-free dev tool.
 2. A reference implementation of that spec (client-side).
