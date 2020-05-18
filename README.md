@@ -15,8 +15,8 @@ In the past, web bundlers like Webpack, Rollup, and Parcel have all implemented
 
 ## What's in This Repo?
 
-1. A spec outlining a standard ESM-based Hot Module Replacement (HMR) API that can be used by any bundle-free dev tool.
-2. A reference implementation of that spec (client-side).
+1. The ESM-HMR spec, outlining a standard Hot Module Replacement API that can be used in any bundle-free dev tool.
+2. [A reference implementation of that spec (client-side).](/esm-hmr-client-runtime.ts)
 
 # The Spec
 
