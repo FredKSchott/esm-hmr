@@ -1,8 +1,7 @@
 # ESM Hot Module Replacement (ESM-HMR) Spec
 
-Fred Schott
-
-Stage 0 - Under Development
+*Author: Fred K. Schott*  
+*Status: Under Development*
 
 Hot Module Replacement (HMR) lets your website live-update during development without triggering a full browser reload or losing the current web application state. This can considerably speed up your iteration speed during development, saving you valuable time.
 
