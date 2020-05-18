@@ -24,7 +24,7 @@ In the past, web bundlers like Webpack, Rollup, and Parcel have all implemented
 
 ```js
 // Injected into the file during development:
-import * as ESM_HMR from '/hmr-client-runtime.js';
+import * as ESM_HMR from '/esm-hmr-client-runtime.js';
 import.meta.hot = ESM_HMR.createHotContext(import.meta.url);
 
 // Your module code:
