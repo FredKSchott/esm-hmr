@@ -23,14 +23,14 @@ In the past, web bundlers like Webpack, Rollup, and Parcel have all implemented
 ### Cheatsheet
 
 ```js
-// Injected into the response during development
+// Injected into the file during development:
 import * as ESM_HMR from '/hmr-client-runtime.js';
 import.meta.hot = ESM_HMR.createHotContext(import.meta.url);
 
-// Your module code
+// Your module code:
 export let foo = 1;
 
-// HMR Logic
+// HMR Logic:
 if (import.meta.hot) {
   // Required: Mark this module as HMR-ready.
   // 1. Receive any module updates into the accept callback.
