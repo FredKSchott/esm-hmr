@@ -15,7 +15,7 @@ In the past, web bundlers like Webpack, Rollup, and Parcel have all implemented
 
 ## What's in This Repo?
 
-1. The ESM-HMR spec.
+1. The proposed ESM-HMR spec.
 2. A reference implementation of that spec: [esm-hmr-client-runtime.ts](/esm-hmr-client-runtime.ts)
 
 # The Spec
@@ -51,7 +51,7 @@ if (import.meta.hot) {
 
 ## Spec Details
 
-Note: We are still fleshing this spec out, and this section is still under development. 
+Note: We are still fleshing this out, and this section is still under development. 
 
 Our first goal is to document Snowpack's current browser-native HMR implementation for a first-round of feedback. Our second goal is to expand this spec to support Preact's Prefresh, React's Fast Reload, and more framework-specific HMR implementations. 
 
