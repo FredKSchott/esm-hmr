@@ -18,9 +18,9 @@ In the past, web bundlers like Webpack, Rollup, and Parcel have all implemented
 1. A spec outlining a standard ESM-based Hot Module Replacement (HMR) API that can be used by any bundle-free dev tool.
 2. A reference implementation of that spec (client-side).
 
-## The ESM-HMR Spec
+# The Spec
 
-### Cheatsheet
+## Cheatsheet
 
 ```js
 // Injected into the file during development:
@@ -43,7 +43,7 @@ if (import.meta.hot) {
 }
 ```
 
-### Spec Details
+## Spec Details
 
 Note: We are still fleshing this spec out, and this section is still under development. 
 
