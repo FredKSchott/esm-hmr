@@ -7,7 +7,7 @@ Hot Module Replacement (HMR) lets your website live-update during development wi
 
 In the past, web bundlers like Webpack, Rollup, and Parcel have all implemented custom, bundler-specific HMR interfaces. Each bundler's HMR support is unique based on the different characteristics of each bundler's module loading system. As a result, very little HMR-related code-sharing is possible across bundlers.
 
-**ESM-HMR is a standard interface for native Hot Module Replacement.** The rise of bundle-free development creates the opportunity for a common, standard HMR API based on the browser's native module system. ESM-HMR leverages the browser's native module system to create a common API for hot module replacement that can work in any ESM-based dev environment.
+**ESM-HMR is a standard HMR API for ESM-based dev environments.** The rise of bundle-free development creates the opportunity for a common, standard HMR API based on the browser's native module system. ESM-HMR leverages the browser's native module system to create a common API for hot module replacement that can work in any ESM-based dev environment.
 
 ## Who's Using ESM-HMR?
 
@@ -15,8 +15,8 @@ In the past, web bundlers like Webpack, Rollup, and Parcel have all implemented
 
 ## What's in This Repo?
 
-1. The ESM-HMR spec, outlining a standard interface for native hot module replacement.
-2. [A reference implementation of that spec (client-side).](/esm-hmr-client-runtime.ts)
+1. The ESM-HMR spec.
+2. A reference implementation of that spec: [esm-hmr-client-runtime.ts](/esm-hmr-client-runtime.ts)
 
 # The Spec
 
