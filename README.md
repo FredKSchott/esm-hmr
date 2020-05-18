@@ -20,7 +20,7 @@ In the past, web bundlers like Webpack, Rollup, and Parcel have all implemented
 
 # The Spec
 
-## Cheatsheet
+#### A Guided Example
 
 ```js
 // Injected into the file during development:
