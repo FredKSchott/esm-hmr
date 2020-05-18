@@ -55,6 +55,6 @@ Our first goal is to document Snowpack's current browser-native HMR implementati
 
 This spec wouldn't exist without the work of the following projects:
 
-- @rixo's [Rollup HMR Plugin](https://github.com/rixo/rollup-plugin-hot)
+- @rixo's [rollup-plugin-hot](https://github.com/rixo/rollup-plugin-hot)
 - [Webpack HMR](https://webpack.js.org/concepts/hot-module-replacement/)
 - [Parcel HMR](https://parceljs.org/hmr.html)
