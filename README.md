@@ -55,7 +55,7 @@ if (import.meta.hot) {
 
 Note: We are still fleshing this out, and this section is still under development. 
 
-Our first goal is to document Snowpack's current browser-native HMR implementation for a first-round of feedback. Our second goal is to expand this spec to support Preact's Prefresh, React's Fast Reload + Error Reporting, and other popular HMR implementations. 
+Our first goal is to generalize and document Snowpack's browser-native HMR implementation for a first-round of feedback. Our second goal is to expand this spec to support Preact's Prefresh, React's Fast Reload + Error Reporting, and any features needed by other popular HMR implementations. 
 
 
 ## Prior Art
