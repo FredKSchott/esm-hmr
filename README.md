@@ -23,7 +23,7 @@ In the past, web bundlers like Webpack, Rollup, and Parcel have all implemented
 #### A Guided Example
 
 ```js
-// Injected into the file during development:
+// Automatically injected into the response during development:
 import * as ESM_HMR from '/esm-hmr-client-runtime.js';
 import.meta.hot = ESM_HMR.createHotContext(import.meta.url);
 
