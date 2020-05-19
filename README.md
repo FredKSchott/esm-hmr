@@ -9,7 +9,7 @@ Web bundlers like Webpack, Rollup, and Parcel have all implemented different, cu
   - https://github.com/facebook/react/issues/16604#issuecomment-528663101
   - https://github.com/JoviDeCroock/prefresh
 
-**ESM-HMR is a standard HMR API for ESM-based dev environments.** The rise of bundle-free development creates the opportunity for a common, standard HMR API built on top of the browser's native module system. ESM-HMR leverages the browser's native module system to create a common API for hot module replacement that can work in any ESM-based dev environment.
+**ESM-HMR is a standard HMR API for ESM-based dev environments.** The rise of bundle-free development creates the opportunity for a common, standard HMR API built on top of the browser's native module system. ESM-HMR is built for the browser's native module system, so it can run in any ESM-based dev environment.
 
 ## Who's Using ESM-HMR?
 
@@ -17,8 +17,9 @@ Web bundlers like Webpack, Rollup, and Parcel have all implemented different, cu
 
 ## What's in This Repo?
 
-1. The proposed ESM-HMR spec.
-2. A reference implementation of that spec: [esm-hmr-client-runtime.ts](/esm-hmr-client-runtime.ts)
+1. `esm-hmr/client.js` - A client-side runtime that implements the ESM-HMR spec.
+1. `esm-hmr/server.js` - A server-side engine to manage ESM-HMR clients.  (coming soon)
+1. A standard ESM-HMR Spec for writing your own implementation. (coming soon)
 
 # The Spec
 
@@ -26,7 +27,7 @@ Web bundlers like Webpack, Rollup, and Parcel have all implemented different, cu
 
 ```js
 // Automatically injected into the response by the dev server:
-import * as $HMR$ from '/esm-hmr-client-runtime.js';
+import * as $HMR$ from '/esm-hmr/client.js';
 import.meta.hot = $HMR$.createHotContext(import.meta.url);
 
 // Your module's JavaScript code:
