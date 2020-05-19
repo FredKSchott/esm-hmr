@@ -1,22 +1,21 @@
 /**
- * esm-hmr-client-runtime.ts
- *
+ * esm-hmr/runtime.ts
  * A client-side implementation of the ESM-HMR spec, for reference.
  */
 
 function debug(...args: any[]) {
-  console.log('[ESM-HMR]', ...args);
+  console.log("[ESM-HMR]", ...args);
 }
 function reload() {
   location.reload(true);
 }
 
-const REGISTERED_MODULES: {[key: string]: HotModuleState} = {};
+const REGISTERED_MODULES: { [key: string]: HotModuleState } = {};
 
 class HotModuleState {
   id: string;
   isLocked: boolean = false;
-  acceptCallback?: true | ((args: {module: any}) => void);
+  acceptCallback?: true | ((args: { module: any }) => void);
   disposeCallbacks: (() => void)[] = [];
 
   constructor(id: string) {
@@ -31,7 +30,7 @@ class HotModuleState {
     this.disposeCallbacks.push(callback);
   }
 
-  accept(callback: true | ((args: {module: any}) => void) = true): void {
+  accept(callback: true | ((args: { module: any }) => void) = true): void {
     if (!this.isLocked) {
       this.acceptCallback = callback;
     }
@@ -56,7 +55,7 @@ export function createHotContext(fullUrl: string) {
 
 async function applyUpdate(id: string) {
   const state = REGISTERED_MODULES[id];
-  if (!state || !id.endsWith('.js')) {
+  if (!state || !id.endsWith(".js")) {
     return false;
   }
 
@@ -69,27 +68,27 @@ async function applyUpdate(id: string) {
     if (acceptCallback === true) {
       // Do nothing, importing the module side-effects was enough.
     } else {
-      await acceptCallback({module});
+      await acceptCallback({ module });
     }
   }
   await Promise.all(disposeCallbacks.map((cb) => cb()));
   return true;
 }
 
-const source = new EventSource('/livereload');
+const source = new EventSource("/livereload");
 source.onerror = () => (source.onopen = reload);
 source.onmessage = async (e) => {
   const data = JSON.parse(e.data);
-  if (data.type === 'reload') {
-    debug('message: reload');
+  if (data.type === "reload") {
+    debug("message: reload");
     reload();
     return;
   }
-  if (data.type !== 'update') {
-    debug('message: unknown', data);
+  if (data.type !== "update") {
+    debug("message: unknown", data);
     return;
   }
-  debug('message: update', data);
+  debug("message: update", data);
   debug(data.url, Object.keys(REGISTERED_MODULES));
   applyUpdate(data.url)
     .then((ok) => {
@@ -103,4 +102,4 @@ source.onmessage = async (e) => {
     });
 };
 
-debug('listening for file changes...');
+debug("listening for file changes...");
