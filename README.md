@@ -3,13 +3,13 @@
 *Author: Fred K. Schott (co-authors welcome!)*  
 *Status: In Progress*
 
-Hot Module Replacement (HMR) lets your website live-update during development without triggering a full browser reload or losing the current web application state. This can considerably speed up your iteration speed during development, saving you valuable time.
+Hot Module Replacement (HMR) lets your browser live-update individual JavaScript modules in your application during development *without triggering a full browser reload or losing the current web application state.* This speeds up your development speed with faster updates on every change.
 
-Web bundlers like Webpack, Rollup, and Parcel have all implemented different, custom bundler-specific HMR interfaces. This makes it hard to share HMR integrations across dev environments. As a result, many integrations need to be rewritten for every bundler that they'd like to support. See: 
+Web bundlers like Webpack, Rollup, and Parcel all implemented different, bundler-specific HMR interfaces. This makes it hard to share HMR integrations across dev environments. As a result, many framework integrations like React Fast Refresh and Preact's Prefresh need to be rewritten for every bundler that they'd like to support. See: 
   - https://github.com/facebook/react/issues/16604#issuecomment-528663101
   - https://github.com/JoviDeCroock/prefresh
 
-**ESM-HMR is a standard HMR API for ESM-based dev environments.** The rise of bundle-free development creates the opportunity for a common, standard HMR API built on top of the browser's native module system. ESM-HMR is built for the browser's native module system, so it can run in any ESM-based dev environment.
+**ESM-HMR is a standard HMR API for ESM-based dev environments.** The rise of bundle-free development creates the opportunity for a common, standard HMR API built on top of the browser's native module system. ESM-HMR is built for the browser's native module system, so it can be used in any ESM-based dev environment.
 
 ## Who's Using ESM-HMR?
 
@@ -17,16 +17,14 @@ Web bundlers like Webpack, Rollup, and Parcel have all implemented different, cu
 
 ## What's in This Repo?
 
-1. `esm-hmr/client.js` - A client-side runtime that implements the ESM-HMR spec.
-1. `esm-hmr/server.js` - A server-side engine to manage ESM-HMR clients.  (coming soon)
-1. A standard ESM-HMR Spec for writing your own implementation. (coming soon)
+1. `esm-hmr/client.js` - A client-side ESM-HMR runtime.
+1. `esm-hmr/server.js` - A server-side ESM-HMR engine to manage connected clients.
+1. An ESM-HMR spec to help your write your own client/server pieces. (coming soon)
 
-# The Spec
-
-#### A Guided Example
+## Example
 
 ```js
-// Automatically injected into the response by the dev server:
+// Automatically injected by the dev server:
 import * as $HMR$ from '/esm-hmr/client.js';
 import.meta.hot = $HMR$.createHotContext(import.meta.url);
 
