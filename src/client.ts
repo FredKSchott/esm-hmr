@@ -16,8 +16,8 @@ class HotModuleState {
   id: string;
   isLocked: boolean = false;
   isDeclined: boolean = false;
-  acceptCallbacks: (true | ((args: { module: any }) => void))[] = [];
-  disposeCallbacks: (() => void)[] = [];
+  acceptCallbacks: (true | ((args: { module: any; data: any }) => void))[] = [];
+  disposeCallbacks: (({ data }: { data: any }) => void)[] = [];
 
   constructor(id: string) {
     this.id = id;
@@ -68,18 +68,19 @@ async function applyUpdate(id: string) {
     return false;
   }
 
+  const data = {};
   const acceptCallbacks = state.acceptCallbacks;
   const disposeCallbacks = state.disposeCallbacks;
   state.disposeCallbacks = [];
 
-  disposeCallbacks.map((cb) => cb());
+  disposeCallbacks.map((cb) => cb({ data }));
   if (acceptCallbacks.length > 0) {
     const module = await import(id + `?mtime=${Date.now()}`);
     acceptCallbacks.forEach((cb) => {
       if (cb === true) {
         // Do nothing, importing the module side-effects was enough.
       } else {
-        cb({ module });
+        cb({ module, data });
       }
     });
   }
