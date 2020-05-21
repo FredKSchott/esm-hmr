@@ -15,6 +15,7 @@ const REGISTERED_MODULES: { [key: string]: HotModuleState } = {};
 class HotModuleState {
   id: string;
   isLocked: boolean = false;
+  isDeclined: boolean = false;
   acceptCallbacks: (true | ((args: { module: any }) => void))[] = [];
   disposeCallbacks: (() => void)[] = [];
 
@@ -40,6 +41,10 @@ class HotModuleState {
   invalidate(): void {
     reload();
   }
+
+  decline(): void {
+    this.isDeclined = true;
+  }
 }
 
 export function createHotContext(fullUrl: string) {
@@ -57,6 +62,9 @@ export function createHotContext(fullUrl: string) {
 async function applyUpdate(id: string) {
   const state = REGISTERED_MODULES[id];
   if (!state || !id.endsWith(".js")) {
+    return false;
+  }
+  if (state.isDeclined) {
     return false;
   }
 
