@@ -1,13 +1,14 @@
 # ESM Hot Module Replacement (ESM-HMR) Spec
 
-*Author: Fred K. Schott (co-authors welcome!)*  
-*Status: In Progress*
+_Author: Fred K. Schott (co-authors welcome!)_  
+_Status: In Progress_
 
-Hot Module Replacement (HMR) lets your browser live-update individual JavaScript modules in your application during development *without triggering a full browser reload or losing the current web application state.* This speeds up your development speed with faster updates on every change.
+Hot Module Replacement (HMR) lets your browser live-update individual JavaScript modules in your application during development _without triggering a full browser reload or losing the current web application state._ This speeds up your development speed with faster updates on every change.
 
-Web bundlers like Webpack, Rollup, and Parcel all implemented different, bundler-specific HMR interfaces. This makes it hard to share HMR integrations across dev environments. As a result, many framework integrations like React Fast Refresh and Preact's Prefresh need to be rewritten for every bundler that they'd like to support. See: 
-  - https://github.com/facebook/react/issues/16604#issuecomment-528663101
-  - https://github.com/JoviDeCroock/prefresh
+Web bundlers like Webpack, Rollup, and Parcel all implemented different, bundler-specific HMR interfaces. This makes it hard to share HMR integrations across dev environments. As a result, many framework integrations like React Fast Refresh and Preact's Prefresh need to be rewritten for every bundler that they'd like to support. See:
+
+- https://github.com/facebook/react/issues/16604#issuecomment-528663101
+- https://github.com/JoviDeCroock/prefresh
 
 **ESM-HMR is a standard HMR API for ESM-based dev environments.** The rise of bundle-free development creates the opportunity for a common, standard HMR API built on top of the browser's native module system. ESM-HMR is built for the browser's native module system, so it can be used in any ESM-based dev environment.
 
@@ -21,41 +22,133 @@ Web bundlers like Webpack, Rollup, and Parcel all implemented different, bundler
 1. `esm-hmr/server.js` - A server-side ESM-HMR engine to manage connected clients.
 1. An ESM-HMR spec to help your write your own client/server pieces. (coming soon)
 
-## Example
+## Usage Example
 
 ```js
-// Automatically injected by the dev server:
-import * as $HMR$ from '/esm-hmr/client.js';
-import.meta.hot = $HMR$.createHotContext(import.meta.url);
-
-// Your module's JavaScript code:
 export let foo = 1;
 
-// HMR Logic:
 if (import.meta.hot) {
-  // Required: Mark this module as HMR-ready.
-  // - Receive any module updates into the accept callback.
-  // - Update the main module acordingly.
-  import.meta.hot.accept(({module}) => {
+  // accept(): Receive any updates from the dev server, and update accordingly.
+  import.meta.hot.accept(({ module }) => {
     try {
       foo = module.foo;
     } catch (err) {
-      // Optional: If an error occurs during update, invalidate the module.
-      // This will naively trigger a full page reload.
+      // invalidate(): Mark the update as not valid, usually forcing a page refresh.
       import.meta.hot.invalidate();
     }
   });
-  // Optional: Perform any cleanup when a module is replaced.
-  import.meta.hot.dispose(() => { /* ... */ });
+  // dispose(): Optional side-effect cleanup logic to run before an update is applied.
+  import.meta.hot.dispose(() => {
+    /* ... */
+  });
 }
 ```
 
-## Spec Details
+## ESM-HMR API Overview
 
-Note: We are still fleshing this out, and this section is still under development. 
+### `import.meta.hot`
 
-Our first goal is to generalize and document Snowpack's browser-native HMR implementation for a first-round of feedback. Our second goal is to expand this spec to support Preact's Prefresh, React's Fast Reload + Error Reporting, and any features needed by other popular HMR implementations. 
+```js
+if (import.meta.hot) {
+  // Your HMR code here...
+}
+```
 
+- All HMR logic is scoped to the [`import.meta`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import.meta) `hot` property.
+- This object should exist in any ESM-HMR environment, and be falsey or undefined otherwise (in production).
+- You should expect your production build to strip out `if (import.meta.hot) { ... }` as dead code.
+- **Important:** For performance reasons, you must use the fully expanded `if (import.meta.hot)` statement. Some ESM-HMR servers may check for this string without parsing each file into a full AST.
+
+### `accept()`
+
+```js
+import.meta.hot.accept();
+```
+
+- Accept HMR updates for this module but make no attempt to apply them to the current module.
+- This module will be reloaded and re-run on every update, but without an accept handler the rest of the application will never update to use the new code.
+
+**USE CASE:** Your module has no exports, and runs just by being imported.
+
+### `accept(callback: ({module: any; data: any}) => void)`
+
+```js
+export let foo = 1;
+import.meta.hot.accept(
+  ({
+    module, // An imported instance of the new module
+    data, // Data passed from the dispose callback (optional)
+  }) => {
+    foo = module.foo;
+  }
+);
+```
+
+Accept HMR updates for this file, and apply them to the current module. Whenever an update is received, the browser will `import()` a new copy of the module and pass it to the `accept()` callback. It's up to this callback to apply those updates to the current module. This act is what accepts your update into the the running application.
+
+**This is an important distinction!** ESM-HMR never replaces the accepting module for you. Instead, the current module is given an instance of the updated module in the `accept()` callback. It's up to the `accept()` callback to apply that update to the current module in the current application.
+
+**USE CASE:** Your module has exports that need to be updated.
+
+### `dispose(callback: ({data: any}) => void)`
+
+```js
+document.head.appendChild(styleEl);
+import.meta.hot.dispose(({ data }) => {
+  document.head.removeChild(styleEl);
+});
+```
+
+The `dispose()` callback executes before a new module is loaded and before `accept()` is called. Use this to remove any side-effects and perform any cleanup before loading a second (or third, or forth, or...) copy of your module.
+
+You can send some state info to the next `accept()` call by attaching it to the `data` argument. The `data` argument object lives on after the callback completes, and is passed directly as the `data` argument to the next `accept()` call.
+
+**USE CASE:** Your module has side-effects that need to be cleaned up.
+
+### `decline()`
+
+```js
+import.meta.hot.decline();
+```
+
+This module is not HMR-compatible. Decline any updates, forcing a full page reload.
+
+**USE CASE:** Your module cannot accept HMR updates, for example due to permenant side-effects.
+
+### `invalidate()`
+
+```js
+import.meta.hot.accept(({ module }) => {
+  if (!module.foo) {
+    import.meta.hot.invalidate();
+  }
+});
+```
+
+Invalidate the current module. Similar to the `decline()` function, this will reject the update and force a page reload.
+
+**USE CASE:** Conditionally reject an update if some condition is met.
+
+<!--
+## ESM-HMR Behavior Overview
+
+_Note: This spec is still in progress, and is more of a rough overview at this point._
+
+### Terminology
+
+- "HMR Server Engine" - The server component of HMR. Responsible for tracking changes and sending updates to the client runtime.
+- "HMR Client Runtime" - The client/browser component of HMR. Responsible for receiving updates from the server engine and updating the client appropriately.
+- "HMR-Enabled File" - Any file that includes a reference to `import.meta.hot` is considered HMR-Enabled.
+
+### Update Events
+
+When a file is changed, 1 or more events are sent to the browser. What these events look like (and how they are is handled) depends on your application:
+
+- If the changed file is HMR-Enabled, the server will send an update for that one file.
+- Otherwise, the server will "bubble" the update event up to check each parent of that file.
+- Event bubbling is repeated until every event is handled, or an event has reached
+- If an event bubbles all the way up without finding an HMR-enabled parent, the event is considered "unhandled" and a full page reload is triggered.
+-->
 
 ## Prior Art
 
