@@ -3,6 +3,9 @@
  * A client-side implementation of the ESM-HMR spec, for reference.
  */
 
+type AcceptCallback = (args: { module: any; data: any }) => void;
+type DisposeCallback = (args: { data: any }) => void;
+
 function debug(...args: any[]) {
   console.log("[ESM-HMR]", ...args);
 }
@@ -16,8 +19,8 @@ class HotModuleState {
   id: string;
   isLocked: boolean = false;
   isDeclined: boolean = false;
-  acceptCallbacks: (true | ((args: { module: any; data: any }) => void))[] = [];
-  disposeCallbacks: (({ data }: { data: any }) => void)[] = [];
+  acceptCallbacks: (true | AcceptCallback)[] = [];
+  disposeCallbacks: DisposeCallback[] = [];
 
   constructor(id: string) {
     this.id = id;
@@ -27,11 +30,11 @@ class HotModuleState {
     this.isLocked = true;
   }
 
-  dispose(callback: () => void): void {
+  dispose(callback: DisposeCallback): void {
     this.disposeCallbacks.push(callback);
   }
 
-  accept(callback: true | ((args: { module: any }) => void) = true): void {
+  accept(callback: true | AcceptCallback = true): void {
     if (this.isLocked) {
       return;
     }
@@ -73,14 +76,14 @@ async function applyUpdate(id: string) {
   const disposeCallbacks = state.disposeCallbacks;
   state.disposeCallbacks = [];
 
-  disposeCallbacks.map((cb) => cb({ data }));
+  disposeCallbacks.map((callback) => callback({ data }));
   if (acceptCallbacks.length > 0) {
     const module = await import(id + `?mtime=${Date.now()}`);
-    acceptCallbacks.forEach((cb) => {
-      if (cb === true) {
+    acceptCallbacks.forEach((callback) => {
+      if (callback === true) {
         // Do nothing, importing the module side-effects was enough.
       } else {
-        cb({ module, data });
+        callback({ module, data });
       }
     });
   }
