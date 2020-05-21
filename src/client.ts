@@ -15,7 +15,7 @@ const REGISTERED_MODULES: { [key: string]: HotModuleState } = {};
 class HotModuleState {
   id: string;
   isLocked: boolean = false;
-  acceptCallback?: true | ((args: { module: any }) => void);
+  acceptCallbacks: (true | ((args: { module: any }) => void))[] = [];
   disposeCallbacks: (() => void)[] = [];
 
   constructor(id: string) {
@@ -31,11 +31,12 @@ class HotModuleState {
   }
 
   accept(callback: true | ((args: { module: any }) => void) = true): void {
-    if (!this.isLocked) {
-      this.acceptCallback = callback;
+    if (this.isLocked) {
+      return;
     }
-    this.isLocked = true;
+    this.acceptCallbacks.push(callback);
   }
+
   invalidate(): void {
     reload();
   }
@@ -59,19 +60,22 @@ async function applyUpdate(id: string) {
     return false;
   }
 
-  const acceptCallback = state.acceptCallback;
+  const acceptCallbacks = state.acceptCallbacks;
   const disposeCallbacks = state.disposeCallbacks;
   state.disposeCallbacks = [];
 
-  if (acceptCallback) {
+  disposeCallbacks.map((cb) => cb());
+  if (acceptCallbacks.length > 0) {
     const module = await import(id + `?mtime=${Date.now()}`);
-    if (acceptCallback === true) {
-      // Do nothing, importing the module side-effects was enough.
-    } else {
-      await acceptCallback({ module });
-    }
+    acceptCallbacks.forEach((cb) => {
+      if (cb === true) {
+        // Do nothing, importing the module side-effects was enough.
+      } else {
+        cb({ module });
+      }
+    });
   }
-  await Promise.all(disposeCallbacks.map((cb) => cb()));
+
   return true;
 }
 
