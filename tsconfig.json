@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": ".",
+    "target": "es2018",
+    "module": "CommonJS",
+    "declaration": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+  },
+  "include": ["src/**/*", "@types/**/*"],
+  "exclude": ["node_modules"]
+}

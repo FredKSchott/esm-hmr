@@ -1,0 +1,25 @@
+{
+  "name": "esm-hmr",
+  "version": "0.0.1",
+  "description": "a Hot Module Replacement (HMR) API for your ESM-based dev server.",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "format": "prettier --write 'src/**/*.ts'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pikapkg/esm-hmr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pikapkg/esm-hmr/issues"
+  },
+  "homepage": "https://github.com/pikapkg/esm-hmr#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^14.0.4",
+    "prettier": "^2.0.5",
+    "typescript": "^3.9.3"
+  }
+}
