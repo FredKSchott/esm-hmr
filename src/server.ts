@@ -1,4 +1,4 @@
-import http from 'http';
+import WebSocket from "ws";
 
 interface Dependency {
   dependents: Set<string>;
@@ -7,14 +7,14 @@ interface Dependency {
   needsReplacement: boolean;
 }
 
-function sendMessage(res: http.ServerResponse, channel: string, data: string) {
-  res.write(`event: ${channel}\nid: 0\ndata: ${data}\n`);
-  res.write('\n\n');
-}
-
 export class EsmHmrEngine {
-  clients: http.ServerResponse[] = [];
+  clients: Set<WebSocket> = new Set();
   dependencyTree = new Map<string, Dependency>();
+
+  constructor() {
+    const socket = new WebSocket.Server({ port: 12321 });
+    socket.on("connection", (client) => this.connectClient(client));
+  }
 
   createEntry(sourceUrl: string) {
     const newEntry: Dependency = {
@@ -71,31 +71,28 @@ export class EsmHmrEngine {
     entry.needsReplacement = state;
   }
 
-  broadcastMessage(channel: string, data: object) {
-    for (const client of this.clients) {
-      sendMessage(client, channel, JSON.stringify(data));
-    }
-  }
-
-  connectClient(res: http.ServerResponse) {
-    res.writeHead(200, {
-      Connection: 'keep-alive',
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Access-Control-Allow-Origin': '*',
+  broadcastMessage(data: object) {
+    this.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(data));
+      } else {
+        this.disconnectClient(client);
+      }
     });
-    sendMessage(res, 'connected', 'ready');
-    setInterval(sendMessage, 60000, res, 'ping', 'waiting');
-    this.clients.push(res);
   }
 
-  disconnectClient(client: http.ServerResponse) {
-    this.clients.splice(this.clients.indexOf(client), 1);
+  connectClient(client: WebSocket) {
+    this.clients.add(client);
+  }
+
+  disconnectClient(client: WebSocket) {
+    client.terminate();
+    this.clients.delete(client);
   }
 
   disconnectAllClients() {
     for (const client of this.clients) {
-      client.end();
+      this.disconnectClient(client);
     }
   }
 }

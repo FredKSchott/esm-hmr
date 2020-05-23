@@ -91,10 +91,18 @@ async function applyUpdate(id: string) {
   return true;
 }
 
-const source = new EventSource("/livereload");
-source.onerror = () => (source.onopen = reload);
-source.onmessage = async (e) => {
-  const data = JSON.parse(e.data);
+const socket = new WebSocket("ws://localhost:12321/");
+
+socket.addEventListener("open", function (event) {
+  console.log("conenction opened");
+});
+
+socket.addEventListener("message", ({ data: _data }) => {
+  console.log("incoming", _data);
+  if (!_data) {
+    return;
+  }
+  const data = JSON.parse(_data);
   if (data.type === "reload") {
     debug("message: reload");
     reload();
@@ -116,6 +124,6 @@ source.onmessage = async (e) => {
       console.error(err);
       reload();
     });
-};
+});
 
 debug("listening for file changes...");

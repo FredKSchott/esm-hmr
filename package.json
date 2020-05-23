@@ -16,7 +16,10 @@
     "url": "https://github.com/pikapkg/esm-hmr/issues"
   },
   "homepage": "https://github.com/pikapkg/esm-hmr#readme",
-  "dependencies": {},
+  "dependencies": {
+    "@types/ws": "^7.2.4",
+    "ws": "^7.3.0"
+  },
   "devDependencies": {
     "@types/node": "^14.0.4",
     "prettier": "^2.0.5",
