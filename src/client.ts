@@ -3,8 +3,8 @@
  * A client-side implementation of the ESM-HMR spec, for reference.
  */
 
-type DisposeCallback = (args: { data: any }) => void;
-type AcceptCallback = (args: { module: any; deps: any[]; data: any }) => void;
+type DisposeCallback = () => void;
+type AcceptCallback = (args: { module: any; deps: any[] }) => void;
 type AcceptCallbackObject = {
   deps: string[];
   callback: AcceptCallback;
@@ -39,6 +39,7 @@ const REGISTERED_MODULES: { [key: string]: HotModuleState } = {};
 
 class HotModuleState {
   id: string;
+  data: any = {};
   isLocked: boolean = false;
   isDeclined: boolean = false;
   isAccepted: boolean = false;
@@ -117,19 +118,19 @@ async function applyUpdate(id: string) {
     return false;
   }
 
-  const data = {};
   const acceptCallbacks = state.acceptCallbacks;
   const disposeCallbacks = state.disposeCallbacks;
   state.disposeCallbacks = [];
+  state.data = {};
 
-  disposeCallbacks.map((callback) => callback({ data }));
+  disposeCallbacks.map((callback) => callback());
   const updateID = Date.now();
   for (const { deps, callback: acceptCallback } of acceptCallbacks) {
     const [module, ...depModules] = await Promise.all([
       import(id + `?mtime=${updateID}`),
       ...deps.map((d) => import(d + `?mtime=${updateID}`)),
     ]);
-    acceptCallback({ module, deps: depModules, data });
+    acceptCallback({ module, deps: depModules });
   }
 
   return true;
