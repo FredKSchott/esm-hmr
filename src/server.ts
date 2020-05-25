@@ -4,6 +4,7 @@ interface Dependency {
   dependents: Set<string>;
   dependencies: Set<string>;
   isHmrEnabled: boolean;
+  isHmrAccepted: boolean;
   needsReplacement: boolean;
 }
 
@@ -13,7 +14,20 @@ export class EsmHmrEngine {
 
   constructor() {
     const socket = new WebSocket.Server({ port: 12321 });
-    socket.on("connection", (client) => this.connectClient(client));
+    socket.on("connection", (client) => {
+      this.connectClient(client);
+      this.registerListener(client);
+    });
+  }
+
+  registerListener(client: WebSocket) {
+    client.on("message", (data) => {
+      const message = JSON.parse(data.toString());
+      if (message.type === "hotAccept") {
+        const entry = this.getEntry(message.id, true) as Dependency;
+        entry.isHmrAccepted = true;
+      }
+    });
   }
 
   createEntry(sourceUrl: string) {
@@ -22,6 +36,7 @@ export class EsmHmrEngine {
       dependents: new Set(),
       needsReplacement: false,
       isHmrEnabled: false,
+      isHmrAccepted: false,
     };
     this.dependencyTree.set(sourceUrl, newEntry);
     return newEntry;
@@ -38,7 +53,7 @@ export class EsmHmrEngine {
     return null;
   }
 
-  setEntry(sourceUrl: string, imports: string[], isHmrEnabled: boolean) {
+  setEntry(sourceUrl: string, imports: string[], isHmrEnabled = false) {
     const result = this.getEntry(sourceUrl, true)!;
     const outdatedDependencies = new Set(result.dependencies);
     result.isHmrEnabled = isHmrEnabled;
