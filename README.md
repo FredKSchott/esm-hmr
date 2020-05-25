@@ -65,8 +65,8 @@ if (import.meta.hot) {
 import.meta.hot.accept();
 ```
 
-- Accept HMR updates for this module but make no attempt to apply them to the current module.
-- This module will be reloaded and re-run on every update, but without an accept handler the rest of the application will never update to use the new code.
+- Accept HMR updates for this module.
+- This module will be automatically reloaded and rerun on every update. BUT, without an accept handler to apply those updates, your module exports may not be updated to the latest code.
 
 **USE CASE:** Your module has no exports, and runs just by being imported.
 
@@ -89,6 +89,31 @@ Accept HMR updates for this file, and apply them to the current module. Whenever
 **This is an important distinction!** ESM-HMR never replaces the accepting module for you. Instead, the current module is given an instance of the updated module in the `accept()` callback. It's up to the `accept()` callback to apply that update to the current module in the current application.
 
 **USE CASE:** Your module has exports that need to be updated.
+
+### `accept(deps: string[], callback: ({deps: []; module: any; data: any}) => void)`
+
+```js
+import moduleA from "./modules/a.js";
+import moduleB from "./modules/b.js";
+
+export const store = createStore({
+  modules: { a: moduleA, b: moduleB },
+});
+
+import.meta.hot.accept(
+  ["./modules/a.js", "./modules/b.js"],
+  ({ module, deps }) => {
+    store.replaceModules({
+      a: deps[0].default,
+      b: deps[1].default,
+    });
+  }
+);
+```
+
+Sometimes, it's not possible to update an existing module without a reference to some dependency. If you pass an array of dependency import specifiers to your accept handler, those modules will be available to the callback via the `deps` property. Otherwise, the `deps` property will be empty.
+
+**USE CASE:** You need a way to reference your dependencies to update the current module.
 
 ### `dispose(callback: ({data: any}) => void)`
 
