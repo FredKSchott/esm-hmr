@@ -28,16 +28,16 @@ Web bundlers like Webpack, Rollup, and Parcel all implemented different, bundler
 export let foo = 1;
 
 if (import.meta.hot) {
-  // accept(): Receive any updates from the dev server, and update accordingly.
+  // Receive any updates from the dev server, and update accordingly.
   import.meta.hot.accept(({ module }) => {
     try {
       foo = module.foo;
     } catch (err) {
-      // invalidate(): Mark the update as not valid, usually forcing a page refresh.
+      // If you have trouble accepting an update, mark it as invalid (reload the page).
       import.meta.hot.invalidate();
     }
   });
-  // dispose(): Optional side-effect cleanup logic to run before an update is applied.
+  // Optionally, clean up any side-effects in the module before loading a new copy.
   import.meta.hot.dispose(() => {
     /* ... */
   });
@@ -45,6 +45,8 @@ if (import.meta.hot) {
 ```
 
 ## ESM-HMR API Overview
+
+All ESM-HMR implementations will follow this API the behavior outlined below. If you have any questions (or would like clarity on some undefined behavior) file an issue and we'll take a look!
 
 ### `import.meta.hot`
 
@@ -54,43 +56,49 @@ if (import.meta.hot) {
 }
 ```
 
-- All HMR logic is scoped to the [`import.meta`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import.meta) `hot` property.
-- This object should exist in any ESM-HMR environment, and be falsey or undefined otherwise (in production).
-- You should expect your production build to strip out `if (import.meta.hot) { ... }` as dead code.
-- **Important:** For performance reasons, you must use the fully expanded `if (import.meta.hot)` statement. Some ESM-HMR servers may check for this string without parsing each file into a full AST.
+- If HMR is enabled, `import.meta.hot` will be defined.
+- If HMR is disabled (ex: you are building for production), `import.meta.hot` should be undefined.
+- You can expect your production build to strip out `if (import.meta.hot) { ... }` as dead code.
+- **Important:** You must use the fully expanded `import.meta.hot` statement somewhere in the file so that the server can statically check and enable HMR usage.
 
-### `accept()`
+Note: [`import.meta`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import.meta) is the new location for module metadata in ES Modules.
+
+### `import.meta.hot.accept`
+
+#### `accept()`
 
 ```js
 import.meta.hot.accept();
 ```
 
 - Accept HMR updates for this module.
-- This module will be automatically reloaded and rerun on every update. BUT, without an accept handler to apply those updates, your module exports may not be updated to the latest code.
+- When this module is updated, it will be automatically re-imported by the browser.
+- **Important:** Re-importing an updated module instance doesn't automatically replace the current module instance in your application. If you need to update your current module's exports, you'll need a callback handler.
 
-**USE CASE:** Your module has no exports, and runs just by being imported.
+**USE CASE:** Your module has no exports, and runs just by being imported (ex: adds a `<style>` element to the page).
 
-### `accept(callback: ({module: any; data: any}) => void)`
+#### `accept(handler: ({module: any}) => void)`
 
 ```js
 export let foo = 1;
 import.meta.hot.accept(
   ({
     module, // An imported instance of the new module
-    data, // Data passed from the dispose callback (optional)
   }) => {
     foo = module.foo;
   }
 );
 ```
 
-Accept HMR updates for this file, and apply them to the current module. Whenever an update is received, the browser will `import()` a new copy of the module and pass it to the `accept()` callback. It's up to this callback to apply those updates to the current module. This act is what accepts your update into the the running application.
+- Accept HMR updates for this module.
+- Runs the accept handler with the updated module instance.
+- Use this to apply the new module exports to the current application's module instance. This is what accepts your update into the the running application.
 
 **This is an important distinction!** ESM-HMR never replaces the accepting module for you. Instead, the current module is given an instance of the updated module in the `accept()` callback. It's up to the `accept()` callback to apply that update to the current module in the current application.
 
 **USE CASE:** Your module has exports that need to be updated.
 
-### `accept(deps: string[], callback: ({deps: []; module: any; data: any}) => void)`
+#### `accept(deps: string[], handler: ({deps: any[]; module: any;}) => void)`
 
 ```js
 import moduleA from "./modules/a.js";
@@ -111,11 +119,11 @@ import.meta.hot.accept(
 );
 ```
 
-Sometimes, it's not possible to update an existing module without a reference to some dependency. If you pass an array of dependency import specifiers to your accept handler, those modules will be available to the callback via the `deps` property. Otherwise, the `deps` property will be empty.
+Sometimes, it's not possible to update an existing module without a reference to its dependencies. If you pass an array of dependency import specifiers to your accept handler, those modules will be available to the callback via the `deps` property. Otherwise, the `deps` property will be empty.
 
 **USE CASE:** You need a way to reference your dependencies to update the current module.
 
-### `dispose(callback: ({data: any}) => void)`
+### `dispose(callback: () => void)`
 
 ```js
 document.head.appendChild(styleEl);
@@ -136,7 +144,8 @@ You can send some state info to the next `accept()` call by attaching it to the 
 import.meta.hot.decline();
 ```
 
-This module is not HMR-compatible. Decline any updates, forcing a full page reload.
+- This module is not HMR-compatible.
+- Decline any updates, forcing a full page reload.
 
 **USE CASE:** Your module cannot accept HMR updates, for example due to permenant side-effects.
 
@@ -150,9 +159,30 @@ import.meta.hot.accept(({ module }) => {
 });
 ```
 
-Invalidate the current module. Similar to the `decline()` function, this will reject the update and force a page reload.
+- Conditionally invalidate the current module when called.
+- This will reject an in-progress update and force a page reload.
 
 **USE CASE:** Conditionally reject an update if some condition is met.
+
+### `import.meta.hot.data`
+
+```js
+export let foo = 1;
+
+if (import.meta.hot) {
+  // Recieve data from the dispose() handler
+  import.meta.hot.accept(({ module }) => {
+    foo = import.meta.hot.data.foo || module.foo;
+  });
+  // Pass data to the next accept handler call
+  import.meta.hot.dispose(() => {
+    import.meta.hot.data = { foo };
+  });
+}
+```
+
+- You can use `import.meta.hot.data` to pass data from the `dispose()` handler(s) to the `accept()` handler(s).
+- Defaults to an empty object (`{}`) every time an update starts.
 
 <!--
 ## ESM-HMR Behavior Overview
