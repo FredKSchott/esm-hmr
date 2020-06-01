@@ -1,4 +1,5 @@
 import WebSocket from "ws";
+import type http from "http";
 
 interface Dependency {
   dependents: Set<string>;
@@ -12,8 +13,17 @@ export class EsmHmrEngine {
   clients: Set<WebSocket> = new Set();
   dependencyTree = new Map<string, Dependency>();
 
-  constructor() {
-    const socket = new WebSocket.Server({ port: 12321 });
+  constructor(options: { server?: http.Server } = {}) {
+    const socket = options.server
+      ? new WebSocket.Server({ noServer: true })
+      : new WebSocket.Server({ port: 12321 });
+    if (options.server) {
+      options.server.on("upgrade", (req, socket, head) => {
+        socket.handleUpgrade(req, socket, head, (client: WebSocket) => {
+          socket.emit("connection", client, req);
+        });
+      });
+    }
     socket.on("connection", (client) => {
       this.connectClient(client);
       this.registerListener(client);

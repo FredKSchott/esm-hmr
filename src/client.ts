@@ -29,7 +29,9 @@ function sendSocketMessage(msg: any) {
   }
 }
 
-const socketURL = (window as any).HMR_WEBSOCKET_URL || "ws://localhost:12321/";
+const socketURL =
+  (window as any).HMR_WEBSOCKET_URL ||
+  (location.protocol === "http:" ? "ws://" : "wss://") + location.host + "/";
 const socket = new WebSocket(socketURL);
 socket.addEventListener("open", () => {
   SOCKET_MESSAGE_QUEUE.forEach(_sendSocketMessage);
