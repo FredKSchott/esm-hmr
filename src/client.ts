@@ -1,5 +1,5 @@
 /**
- * esm-hmr/runtime.ts
+ * esm-hmr/client.ts
  * A client-side implementation of the ESM-HMR spec, for reference.
  */
 
