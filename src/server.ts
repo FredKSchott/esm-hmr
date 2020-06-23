@@ -38,13 +38,13 @@ export class EsmHmrEngine {
     client.on("message", (data) => {
       const message = JSON.parse(data.toString());
       if (message.type === "hotAccept") {
-        const entry = this.getEntry(message.id, true) as Dependency;
+        const entry = this.getEntry(message.id, true);
         entry.isHmrAccepted = true;
       }
     });
   }
 
-  createEntry(sourceUrl: string) {
+  createEntry(sourceUrl: string): Dependency {
     const newEntry: Dependency = {
       dependencies: new Set(),
       dependents: new Set(),
@@ -56,7 +56,12 @@ export class EsmHmrEngine {
     return newEntry;
   }
 
-  getEntry(sourceUrl: string, createIfNotFound = false) {
+  getEntry(sourceUrl: string, createIfNotFound?: false): Dependency | null;
+  getEntry(sourceUrl: string, createIfNotFound?: true): Dependency;
+  getEntry(
+    sourceUrl: string,
+    createIfNotFound: boolean = false
+  ): Dependency | null {
     const result = this.dependencyTree.get(sourceUrl);
     if (result) {
       return result;
@@ -68,7 +73,7 @@ export class EsmHmrEngine {
   }
 
   setEntry(sourceUrl: string, imports: string[], isHmrEnabled = false) {
-    const result = this.getEntry(sourceUrl, true)!;
+    const result = this.getEntry(sourceUrl, true);
     const outdatedDependencies = new Set(result.dependencies);
     result.isHmrEnabled = isHmrEnabled;
     for (const importUrl of imports) {
@@ -89,9 +94,9 @@ export class EsmHmrEngine {
 
   addRelationship(sourceUrl: string, importUrl: string) {
     if (importUrl !== sourceUrl) {
-      let importResult = this.getEntry(importUrl, true)!;
+      let importResult = this.getEntry(importUrl, true);
       importResult.dependents.add(sourceUrl);
-      const sourceResult = this.getEntry(sourceUrl, true)!;
+      const sourceResult = this.getEntry(sourceUrl, true);
       sourceResult.dependencies.add(importUrl);
     }
   }
