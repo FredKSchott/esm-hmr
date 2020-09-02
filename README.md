@@ -126,14 +126,12 @@ Sometimes, it's not possible to update an existing module without a reference to
 
 ```js
 document.head.appendChild(styleEl);
-import.meta.hot.dispose(({ data }) => {
+import.meta.hot.dispose(() => {
   document.head.removeChild(styleEl);
 });
 ```
 
 The `dispose()` callback executes before a new module is loaded and before `accept()` is called. Use this to remove any side-effects and perform any cleanup before loading a second (or third, or forth, or...) copy of your module.
-
-You can send some state info to the next `accept()` call by attaching it to the `data` argument. The `data` argument object lives on after the callback completes, and is passed directly as the `data` argument to the next `accept()` call.
 
 **USE CASE:** Your module has side-effects that need to be cleaned up.
 
