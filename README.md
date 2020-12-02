@@ -1,6 +1,6 @@
 # ESM Hot Module Replacement (ESM-HMR) Spec
 
-**\_Author:** [Fred K. Schott](https://github.com/FredKSchott) (Snowpack), [Jovi De Croock](https://github.com/JoviDeCroock) (Preact), [Evan You](https://github.com/yyx990803) (Vue)\_  
+**\_Author:** [Fred K. Schott](https://github.com/FredKSchott) (Snowpack), [Jovi De Croock](https://github.com/JoviDeCroock) (Preact), [Evan You](https://github.com/yyx990803) (Vue)\_
 **\_Status:** In Progress\_
 
 Hot Module Replacement (HMR) lets your browser live-update individual JavaScript modules in your application during development _without triggering a full browser reload or losing the current web application state._ This speeds up your development speed with faster updates on every change.
@@ -199,6 +199,18 @@ When a file is changed, 1 or more events are sent to the browser. What these eve
 - Otherwise, the server will "bubble" the update event up to check each parent of that file.
 - Event bubbling is repeated until every event is handled, or an event has reached
 - If an event bubbles all the way up without finding an HMR-enabled parent, the event is considered "unhandled" and a full page reload is triggered.
+
+### Bubbling
+
+Given the following scenario:
+
+![File diagram, a root that accepts updates, a child that accepts updates and a grand-child who doesn't](./assets/bubbling.png)
+
+When an update occurs on the `root.js` file, this will hot-reload itself, similar to the `child.js` file, however when an update
+would occur on `grand-child.js` our esm-hmr runtime would notice that this file isn't accepting updates, this means that it has to
+bubble to all the modules depending on this one.
+In our scenario this will bubble up to `child.js` and trigger a hot-reload there, do note that we'll have to replace the import of
+`grand-child.js` with an `?mtime=x` querystring so we can serve an uncached updated file to the browser.
 
 ## Prior Art
 
