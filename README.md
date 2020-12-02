@@ -181,7 +181,6 @@ if (import.meta.hot) {
 - You can use `import.meta.hot.data` to pass data from the `dispose()` handler(s) to the `accept()` handler(s).
 - Defaults to an empty object (`{}`) every time an update starts.
 
-<!--
 ## ESM-HMR Behavior Overview
 
 _Note: This spec is still in progress, and is more of a rough overview at this point._
@@ -200,7 +199,6 @@ When a file is changed, 1 or more events are sent to the browser. What these eve
 - Otherwise, the server will "bubble" the update event up to check each parent of that file.
 - Event bubbling is repeated until every event is handled, or an event has reached
 - If an event bubbles all the way up without finding an HMR-enabled parent, the event is considered "unhandled" and a full page reload is triggered.
--->
 
 ## Prior Art
 
