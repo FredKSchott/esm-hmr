@@ -1,7 +1,7 @@
 # ESM Hot Module Replacement (ESM-HMR) Spec
 
-**\_Author:** [Fred K. Schott](https://github.com/FredKSchott) (Snowpack), [Jovi De Croock](https://github.com/JoviDeCroock) (Preact), [Evan You](https://github.com/yyx990803) (Vue)\_  
-**\_Status:** In Progress\_
+**Authors:** [Fred K. Schott](https://github.com/FredKSchott) (Snowpack), [Jovi De Croock](https://github.com/JoviDeCroock) (Preact), [Evan You](https://github.com/yyx990803) (Vue)
+**Status:** Archived, no longer under development.
 
 Hot Module Replacement (HMR) lets your browser live-update individual JavaScript modules in your application during development _without triggering a full browser reload or losing the current web application state._ This speeds up your development speed with faster updates on every change.
 
